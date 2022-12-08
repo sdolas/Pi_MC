@@ -1,0 +1,63 @@
+---
+title: "Using Monte Carlo Method to calculate Pi"
+format:
+  pdf:
+    theme: cerulean
+    number-sections: true
+editor: 
+  markdown: 
+    wrap: 72
+---
+# Theory
+We will calculate an approximation to $\pi$ using the Monte Carlo method.
+
+We know the formula for the area of a circle: $$A_{circle} = \pi r^2$$
+Also, we know the area formula for a square with side length  $d$:$$A_{square} = d^2$$ 
+If we choose $d$ so that $2r=d$ we get the ratio of the areas:$$\frac{A_{circle}}{A_{square}} = \frac{\pi r^2}{4r^2} = \frac{\pi}{4}$$
+Since we don't know $\pi$ we cannot calculate $A_{circle}$. But we can take advantage of random numbers and the implicit formula of the circle 
+$x^2+y^2=1$ in a Cartesian coordinate system. 
+
+We draw pairs of random numbers from $0$ to $1$ representing its position on the $x$- and the $y$-axis.Then we evaluate whether the $(x,y)$-pair is in the inner circle. For a large enough number of pairs, we get useful approximation to the above ratio. If we multiply it with $4$, we get an approximation of $\pi$.
+
+\newpage
+# Calculation in R
+```{r calculation}
+set.seed(3141)
+n <- 1000
+x <- runif(n)
+y <- runif(n)
+inner <- x^2 + y^2 <= 1
+MC_pi <- 4*sum(inner)/length(inner)
+
+MC_pi
+```
+
+\newpage
+We will plot only a sample:
+
+```{r circle, fig.height=5.558, fig.width=5}
+library("plotrix")
+plot(x, y, xlim=c(-0.1, 1.1), ylim=c(-0.1, 1.1), pch = "°")
+
+draw.circle(0.5, 0.5, 0.5, border="red")
+
+lines(x=c(0,1), y=c(0,0), col="red")
+lines(x=c(0,1), y=c(1,1), col="red")
+lines(x=c(0,0), y=c(0,1), col="red")
+lines(x=c(1,1), y=c(1,0), col="red")
+```
+
+
+\newpage
+# How many pairs do we need?
+```{r pairs, fig.height=5.558, fig.width=5}
+steps <- 1:1000
+MC_pi.2 <- lapply(steps, function(x)
+  4*sum(runif(x)^2+runif(x)^2 <= 1)/x)
+
+plot(steps, MC_pi.2, type="l", ylab="approximation for Pi", 
+     xlab="number of simulated (x,y)-pairs")
+abline(h=pi, col="red")
+```
+
+
